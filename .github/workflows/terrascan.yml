@@ -38,3 +38,12 @@ jobs:
       uses: github/codeql-action/upload-sarif@v1
       with:
         sarif_file: terrascan.sarif
+    - name: Run KICS Scan
+        continue-on-error: true
+        run: |
+         sudo mkdir $GITHUB_WORKSPACE/scan_output
+         sudo chmod -R a+rwx $GITHUB_WORKSPACE/scan_output
+         docker pull checkmarx/kics:latest
+         docker run -u $UID:$GID -v $PWD:/$GITHUB_WORKSPACE checkmarx/kics:ubi8 scan -p $GITHUB_WORKSPACE/terraform,$GITHUB_WORKSPACE/cft  --report-formats "all" --ignore-on-exit "all" -o /$GITHUB_WORKSPACE/scan_output -v
+       #  echo "Remediating issues"
+       #  docker run -u $UID:$GID -v $PWD:/$GITHUB_WORKSPACE checkmarx/kics:ubi8 remediate --include-ids "all" --results "${GITHUB_WORKSPACE}/scan_output/results.json" -v
